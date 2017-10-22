@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block navbar %}
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-text">Sphinx Weditor</span>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <a class="btn btn-primary" href="/">Home</a>
+          <a class="btn btn-success" href="{{ view_url }}">Cancel</a>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <p class="navbar-text">Source: {{ rst_file }}</p>
+        </ul>
+
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div class="docpage container">
+
+    <form id="ace-form" method="POST" action="{{ edit_url }}">
+      <div class="row well metainfo">
+        <div class="col-md-2">
+          Commit comment:
+        </div>
+
+        <div class="col-md-3">
+          <input id="editor-comment" name="editor-comment" type="text" value="Simple web edit">
+        </div>
+
+        <div class="col-md-2">
+          Author:
+        </div>
+
+        <div class="col-md-2">
+          <input id="editor-author" name="editor-author" type="text" value="{{commit_author}}">
+        </div>
+
+        <div class="col-md-3">
+
+          <input id="editor-content" name="editor-content" type="hidden">
+
+          <input class="button btn btn-primary" type="submit" value="Save">
+        </div>
+
+      </div>
+
+    </form>
+
+    <div id="editor" class="editor">{{ code }}</div>
+
+  </div>
+{% endblock %}
+
+
+{% block scripts %}
+  {{ super() }}
+  <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script>
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/monokai");
+      editor.getSession().setMode("ace/mode/rst");
+      editor.setShowPrintMargin(false);
+
+      document.getElementById('ace-form').onsubmit = function () {
+          document.getElementById("editor-content").value = editor.getValue();
+          return true;
+      };
+
+  </script>
+{% endblock %}

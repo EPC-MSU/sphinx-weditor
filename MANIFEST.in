@@ -1,0 +1,3 @@
+recursive-include sphinx_weditor *.py
+include MANIFEST.in
+include README.md

@@ -1,0 +1,37 @@
+.navbar {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.navbar-nav a.home-link {
+    margin-top: 10px;
+}
+
+.navbar a.btn {
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.docpage {
+    margin-top: 60px;
+}
+
+/*.flashed-messages {*/
+/*}*/
+
+.metainfo {
+    margin-bottom: 20px;
+}
+
+#editor {
+    position: absolute;
+    width: 90%;
+    min-height: 400px;
+    height: 90%;
+}
+
+#embeded-doc {
+    position: absolute;
+    margin: 10px;
+    min-height: 90%;
+    min-width: 90%;
+}

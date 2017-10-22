@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block navbar %}
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <span class="navbar-text">Sphinx Weditor</span>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <a class="btn btn-primary" href="/">Home</a>
+          <a class="btn btn-success" href="{{ edit_url }}">Edit</a>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <p class="navbar-text">Source: {{ rst_file }}</p>
+        </ul>
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+
+  <div class="docpage container">
+    <b>Doc page at {{ doc_file }} is not found</b>
+  </div>
+
+{% endblock %}
+
+
