@@ -43,7 +43,7 @@ app.jinja_env.globals['include_raw'] = include_raw
 
 
 def find_rst_file(doc_path):
-    with open(app.config['DOC_ROOT'] + '/' + doc_path) as fp:
+    with open(app.config['DOC_ROOT'] + '/' + doc_path, 'r', encoding='utf-8') as fp:
         soup = BeautifulSoup(fp, "html.parser")
 
     rst_rel = None
@@ -120,7 +120,7 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
 
     content = "\n".join(content.splitlines())
 
-    with open(rst_path, 'w') as f:
+    with open(rst_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
     # check changes
@@ -207,7 +207,7 @@ def handle_editor_page(doc_path):
 
     if request.method == 'GET':
         logging.debug('Serving editor page ' + str(rst_path))
-        with open(rst_path, 'r') as f:
+        with open(rst_path, 'r', encoding='utf-8') as f:
             code = f.read()
         commit_author = session.get('hg_author', '')
 
