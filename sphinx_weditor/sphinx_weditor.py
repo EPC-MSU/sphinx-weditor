@@ -33,6 +33,13 @@ def configure_app(config=None):
     return app
 
 
+@app.after_request
+def apply_caching(response):
+    logging.debug('here')
+    response.headers["Cache-Control"] = 'no-cache, no-store, must-revalidate'
+    return response
+
+
 def include_raw(filename):
     from jinja2 import FileSystemLoader
     loader = FileSystemLoader(app.config['DOC_ROOT'])
