@@ -35,7 +35,6 @@ def configure_app(config=None):
 
 @app.after_request
 def apply_caching(response):
-    logging.debug('here')
     response.headers["Cache-Control"] = 'no-cache, no-store, must-revalidate'
     return response
 
