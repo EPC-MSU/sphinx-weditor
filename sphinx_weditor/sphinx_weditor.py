@@ -114,6 +114,8 @@ def checked_run(cmd: str, redirect_stdout: bool = True, error_text: str = None):
 
 
 def process_save(content, commit_message, commit_author, rst_path, rst_file):
+    logging.info("--- Do save")
+
     if not commit_message:
         commit_message = 'Unnamed web commit'
     else:
@@ -141,6 +143,14 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
     if stdout_content.strip() == '':
         raise RuntimeError("Nothing to commit and generate")
 
+    # now update the repo to see new changes since last update
+
+    # pull
+    checked_run("hg pull")
+
+    # update
+    checked_run("hg update --tool=internal:fail --noninteractive", error_text='Update conflict')
+
     # regen docs
     checked_run("./generate.sh", redirect_stdout=False)
 
@@ -155,14 +165,26 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
 
 
 def process_update():
+    logging.info("--- Do update")
+
     # clean repo
     checked_run("hg clean --all")
 
     # pull
-    checked_run("hg pull -u")
+    checked_run("hg pull")
+
+    # update
+    checked_run("hg update --tool=internal:fail --noninteractive", error_text='Update conflict')
 
     # regen docs
     checked_run("./generate.sh", redirect_stdout=False)
+
+
+def process_cleanup():
+    logging.info("--- Do cleanup")
+
+    # clean uncommited files
+    checked_run("hg update -C")
 
 
 @app.route('/_update')
@@ -176,6 +198,8 @@ def handle_update_page():
         logging.error(str(e))
         first_line = bleach.clean(str(e).split("\n")[0])
         flash(first_line, 'error')
+        # also cleanup
+        process_cleanup()
 
     return redirect('/')
 
@@ -241,6 +265,8 @@ def handle_editor_page(doc_path):
             logging.error(str(e))
             first_line = bleach.clean(str(e).split("\n")[0])
             flash(first_line, 'error')
+            # also cleanup
+            process_cleanup()
 
         return redirect(view_url)
 
