@@ -190,6 +190,17 @@ def process_cleanup():
     checked_run("hg update -C")
 
 
+def process_autoupdate():
+    kwargs = dict(shell=True,
+                  check=False,
+                  cwd=app.config['DOC_ROOT'])
+    ret = subprocess.run("hg incoming --limit 1", **kwargs)
+    if ret.returncode == 0:
+        logging.info("Incoming changes, auto updating")
+        flash('Repository autoupdated', 'success')
+        process_update()
+
+
 @app.route('/_update')
 def handle_update_page():
     try:
@@ -218,6 +229,7 @@ def handle_viewer_page(doc_path):
         return render_template('notfound.html', doc_file=doc_path)
 
     if doc_path.endswith('.html'):
+        process_autoupdate()
         logging.debug('Serving doc page ' + str(doc_path))
         rst_file = find_rst_file(doc_path)
         edit_url = '/_editor/' + doc_path
