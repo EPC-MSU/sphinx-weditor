@@ -24,6 +24,7 @@
 
 {% block content %}
   <div class="docpage container">
+    {{ utils.flashed_messages() }}
 
     <form id="ace-form" method="POST" action="{{ edit_url }}">
       <div class="row well metainfo">
