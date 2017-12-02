@@ -323,22 +323,21 @@ def handle_content_page(doc_path):
 @app.route('/_preview', methods=['POST'])
 def handle_preview():
     logging.info("Got _preview call {}".format(len(request.data)))
-    text = request.data.decode('utf-8')
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         in_file = os.path.join(tmpdirname, 'in.rst')
         out_file = os.path.join(tmpdirname, 'out.html')
 
-        with open(in_file, 'w') as f:
-            f.write(text)
+        with open(in_file, 'wb') as f:
+            f.write(request.data)
 
         command = ['pandoc', '-f', 'rst', '-t', 'html5',
                    in_file, '-o', out_file]
         ret = subprocess.run(command, shell=False, check=False,
                              stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         if ret.returncode == 0:
-            with open(out_file, 'r') as f:
-                response = f.read()
+            with open(out_file, 'rb') as f:
+                response = f.read().decode('utf-8')
             return response, 200
         else:
             response = ret.stderr.decode('utf-8')
