@@ -48,6 +48,19 @@ def include_raw(filename):
 app.jinja_env.globals['include_raw'] = include_raw
 
 
+def find_matched_by_filename(top_dir: str, find_name: str) -> list:
+    result = []
+    top_abs_path = os.path.join(app.config['DOC_ROOT'], top_dir)
+    if os.path.isdir(top_abs_path):
+        for root, dirs, files in os.walk(top_abs_path):
+            for name in files:
+                if name == find_name:
+                    abs_path = root + '/' + name
+                    rel_path = os.path.relpath(abs_path, app.config['DOC_ROOT'])
+                    result.append(rel_path)
+    return result
+
+
 def find_rst_file(doc_path):
     with open(app.config['DOC_ROOT'] + '/' + doc_path, 'r', encoding='utf-8') as fp:
         soup = BeautifulSoup(fp, "html.parser")
@@ -69,20 +82,20 @@ def find_rst_file(doc_path):
 
     logging.debug('Bare name ' + str(rst_rel))
 
-    rel_pathes = []
-    for root, dirs, files in os.walk(app.config['DOC_ROOT'] + '/doc_src'):
-        for name in files:
-            if name == rst_rel:
-                abs_path = root + '/' + name
-                rel_path = os.path.relpath(abs_path, app.config['DOC_ROOT'])
-                rel_pathes.append(rel_path)
+    rel_pathes = find_matched_by_filename('doc_src', rst_rel)
 
+    if not rel_pathes:
+        top_dir = doc_path.split('/')[0]
+        logging.debug('Name is not found at doc_src, trying at top-level dir ' + top_dir)
+        rel_pathes = find_matched_by_filename(top_dir, rst_rel)
+
+    if not rel_pathes:
+        logging.debug('Name is not found')
+        return None
     if len(rel_pathes) == 1:
         return rel_pathes[0]
     if len(rel_pathes) > 1:
         raise RuntimeError("RST source '{}' is not unique, cannot decide".format(rst_rel))
-
-    return None
 
 
 @app.route('/')
