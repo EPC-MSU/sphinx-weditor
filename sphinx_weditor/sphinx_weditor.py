@@ -167,6 +167,9 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
 def process_update():
     logging.info("--- Do update")
 
+    # clean modified
+    checked_run("hg update -C")
+
     # clean repo
     checked_run("hg clean --all")
 
@@ -265,8 +268,11 @@ def handle_editor_page(doc_path):
             logging.error(str(e))
             first_line = bleach.clean(str(e).split("\n")[0])
             flash(first_line, 'error')
-            # also cleanup
-            process_cleanup()
+            # open editor again with the same content
+            return render_template('editor.html', doc_file=doc_path, rst_file=rst_file,
+                                   edit_url=edit_url, view_url=view_url,
+                                   commit_author=commit_author,
+                                   code=content)
 
         return redirect(view_url)
 
