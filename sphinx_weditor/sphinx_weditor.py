@@ -84,7 +84,7 @@ def handle_root():
     return redirect('/_viewer/index.html')
 
 
-def checked_run(cmd: str, redirect_stdout: bool = True):
+def checked_run(cmd: str, redirect_stdout: bool = True, error_text: str = None):
     kwargs = dict(shell=True,
                   check=False,
                   cwd=app.config['DOC_ROOT'])
@@ -102,9 +102,14 @@ def checked_run(cmd: str, redirect_stdout: bool = True):
         redirected = ret.stderr.decode('utf-8')
 
     if ret.returncode != 0:
-        raise RuntimeError("Error at '{}': code {}, out {}".format(cmd,
-                                                                   ret.returncode,
-                                                                   redirected))
+        if error_text:
+            full_error_text = 'Error: ' + error_text
+        else:
+            full_error_text = "Error at '{}': code {}, out {}".format(cmd,
+                                                                      ret.returncode,
+                                                                      redirected)
+        raise RuntimeError(full_error_text)
+
     return redirected
 
 
