@@ -9,8 +9,9 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
           <a class="btn btn-primary" href="/">Home</a>
-          <a class="btn btn-primary" href="/_update">Update</a>
-          <a class="btn btn-success" href="{{ view_url }}">Cancel</a>
+          <a class="btn btn-primary" onclick="makePreview()">Preview</a>
+          <a class="btn btn-success" href="/_update">Update</a>
+          <a class="btn btn-danger" href="{{ view_url }}">Cancel</a>
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
@@ -41,7 +42,7 @@
         </div>
 
         <div class="col-md-2">
-          <input id="editor-author" name="editor-author" type="text" value="{{commit_author}}">
+          <input id="editor-author" name="editor-author" type="text" value="{{ commit_author }}">
         </div>
 
         <div class="col-md-3">
@@ -57,14 +58,21 @@
 
     <div id="editor" class="editor">{{ code }}</div>
 
+    <div id="preview">
+      <h3>Preview</h3>
+      <div id="preview-error"></div>
+      <div id="preview-content"></div>
+    </div>
+
   </div>
+
 {% endblock %}
 
 
 {% block scripts %}
   {{ super() }}
   <script src="/static/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-  <script>
+  <script type="text/javascript">
       var editor = ace.edit("editor");
       editor.setTheme("ace/theme/monokai");
       editor.getSession().setMode("ace/mode/rst");
@@ -75,5 +83,31 @@
           return true;
       };
 
+      document.getElementById("preview").hidden = true;
+
+  </script>
+
+  <script type="text/javascript">
+      function makePreview() {
+          var xhr = new XMLHttpRequest();
+
+          xhr.onload = xhr.onerror = function () {
+              console.log('Got preview');
+              console.log(xhr.status);
+              document.getElementById("preview").hidden = false;
+              if (xhr.status === 200) {
+                  document.getElementById("preview-content").hidden = false;
+                  document.getElementById("preview-content").innerHTML = this.responseText;
+                  document.getElementById("preview-error").innerHTML = "";
+              } else {
+                  document.getElementById("preview-content").hidden = true;
+                  document.getElementById("preview-content").innerHTML = "";
+                  document.getElementById("preview-error").innerHTML = 'Error previewing: ' + this.responseText;
+              }
+          };
+          console.log("Requesting preview");
+          xhr.open('POST', "/_preview", true);
+          xhr.send(editor.getValue());
+      }
   </script>
 {% endblock %}

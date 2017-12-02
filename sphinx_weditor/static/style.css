@@ -29,6 +29,24 @@
     height: 90%;
 }
 
+#preview {
+    margin-top: 30px;
+}
+
+#preview-content {
+    min-height: 100px;
+    margin: 10px;
+    border: 2px solid;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+#preview-error {
+    color: red;
+    font-weight: bold;
+    margin: 10px;
+}
+
 #embeded-doc {
     position: absolute;
     margin: 10px;

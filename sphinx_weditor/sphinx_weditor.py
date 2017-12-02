@@ -1,15 +1,14 @@
 import logging
-
-import sys
-
 import os
 import subprocess
+import sys
+import tempfile
 
 import bleach
+from bs4 import BeautifulSoup
 from flask import Flask, render_template, redirect, send_file, request, flash, session
 from flask_bootstrap import Bootstrap
 from jinja2 import Markup
-from bs4 import BeautifulSoup
 
 app = Flask('sphinx_weditor')
 
@@ -319,3 +318,28 @@ def handle_content_page(doc_path):
         return "", 404
 
     return send_file(full_path)
+
+
+@app.route('/_preview', methods=['POST'])
+def handle_preview():
+    logging.info("Got _preview call {}".format(len(request.data)))
+    text = request.data.decode('utf-8')
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        in_file = os.path.join(tmpdirname, 'in.rst')
+        out_file = os.path.join(tmpdirname, 'out.html')
+
+        with open(in_file, 'w') as f:
+            f.write(text)
+
+        command = ['pandoc', '-f', 'rst', '-t', 'html5',
+                   in_file, '-o', out_file]
+        ret = subprocess.run(command, shell=False, check=False,
+                             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if ret.returncode == 0:
+            with open(out_file, 'r') as f:
+                response = f.read()
+            return response, 200
+        else:
+            response = ret.stderr.decode('utf-8')
+            return response, 400
