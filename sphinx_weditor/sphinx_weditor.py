@@ -243,7 +243,7 @@ def handle_viewer_page(doc_path):
                                edit_url=edit_url)
 
     if not doc_path.endswith('.js'):
-        logging.debug('Serving asset ' + str(doc_path))
+        # logging.debug('Serving asset ' + str(doc_path))
         return send_file(full_path)
 
     return render_template('notfound.html', doc_file=doc_path)
