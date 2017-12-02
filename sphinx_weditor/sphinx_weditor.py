@@ -204,7 +204,10 @@ def handle_update_page():
         # also cleanup
         process_cleanup()
 
-    return redirect('/')
+    if request.referrer:
+        return redirect(request.referrer)
+    else:
+        return redirect('/')
 
 
 @app.route('/_viewer/<path:doc_path>')
