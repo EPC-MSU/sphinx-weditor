@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 
 import bleach
 from bs4 import BeautifulSoup
@@ -198,7 +199,10 @@ def process_update():
     checked_run("hg update --tool=internal:fail --noninteractive", error_text='Update conflict')
 
     # regen docs
+    time_start = time.time()
     checked_run("./generate.sh", redirect_stdout=False)
+    time_delta = int(time.time() - time_start)
+    logging.info("Generating take {} sec".format(time_delta))
 
 
 def process_cleanup():
