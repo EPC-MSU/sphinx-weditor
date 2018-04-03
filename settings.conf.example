@@ -2,3 +2,5 @@ DOC_ROOT = '/var/malt_doc'
 SECRET_KEY = b'hereismysecretkey'
 ALLOW_PUSH = True
 DEBUG = False
+REGEN_SCRIPT = 'make'
+DOC_SRC = 'doc_src'

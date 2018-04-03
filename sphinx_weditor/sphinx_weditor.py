@@ -101,7 +101,7 @@ def find_rst_file(doc_path) -> Optional[str]:
 
     logging.debug('Bare name ' + str(rst_rel))
 
-    top_dir = 'doc_src'
+    top_dir = app.config['DOC_SRC']
     rel_pathes = find_matched_by_filename(top_dir, rst_rel)
 
     if not rel_pathes:
@@ -225,7 +225,7 @@ def process_update(module_name: Optional[str]):
 
 def call_regen(module_name: Optional[str]):
     time_start = time.time()
-    cmd_line = "./generate.sh"
+    cmd_line = app.config['REGEN_SCRIPT']
     if module_name:
         cmd_line += " " + module_name
     checked_run(cmd_line, redirect_stdout=False)
