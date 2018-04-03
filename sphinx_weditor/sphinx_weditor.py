@@ -65,7 +65,7 @@ def find_matched_by_filename(top_dir: str, find_name: str) -> list:
 
 def extract_module_name_by_referer(referer: str) -> Optional[str]:
     referer_path = urllib.parse.urlparse(str(referer)).path.split('/')
-    while referer_path and referer_path[0] in ['', '_viewer']:
+    while referer_path and referer_path[0] in ['', '_viewer', '_editor']:
         referer_path.pop(0)
     while referer_path and referer_path[-1] in ['index.htm', 'index.html']:
         referer_path.pop()
@@ -152,7 +152,8 @@ def checked_run(cmd: str, redirect_stdout: bool = True, error_text: str = None):
     return redirected
 
 
-def process_save(content, commit_message, commit_author, rst_path, rst_file):
+def process_save(content, commit_message, commit_author, rst_path, rst_file,
+                 module_name: str):
     logging.info("--- Do save")
 
     if not commit_message:
@@ -191,7 +192,7 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
     checked_run("hg update --tool=internal:fail --noninteractive", error_text='Update conflict')
 
     # regen docs
-    checked_run("./generate.sh", redirect_stdout=False)
+    call_regen(module_name)
 
     # commit
     checked_run("hg commit --noninteractive -u '{}' -m '{}' '{}'".format(commit_author,
@@ -203,7 +204,7 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
         checked_run('hg push')
 
 
-def process_update(module_name: str = None):
+def process_update(module_name: Optional[str]):
     logging.info("--- Do update")
 
     # clean modified
@@ -219,6 +220,10 @@ def process_update(module_name: str = None):
     checked_run("hg update --tool=internal:fail --noninteractive", error_text='Update conflict')
 
     # regen docs
+    call_regen(module_name)
+
+
+def call_regen(module_name: Optional[str]):
     time_start = time.time()
     cmd_line = "./generate.sh"
     if module_name:
@@ -243,7 +248,7 @@ def process_autoupdate():
     if ret.returncode == 0:
         logging.info("Incoming changes, auto updating")
         flash('Repository autoupdated', 'success')
-        process_update()
+        process_update(None)
 
 
 @app.route('/_update')
@@ -324,8 +329,14 @@ def handle_editor_page(doc_path):
         commit_message = request.form['editor-comment']
         commit_author = request.form['editor-author']
 
+        if app.config.get('MODULES', False):
+            module_name = extract_module_name_by_referer(request.referrer)
+        else:
+            module_name = None
+
         try:
-            process_save(content, commit_message, commit_author, rst_path, rst_file)
+            process_save(content, commit_message, commit_author, rst_path, rst_file,
+                         module_name)
 
             logging.info('Succeeded, author {}, message {}'.format(commit_author, commit_message))
             flash('Document saved and regenerated', 'success')
