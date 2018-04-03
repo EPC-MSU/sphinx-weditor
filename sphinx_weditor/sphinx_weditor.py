@@ -4,6 +4,8 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.parse
+from typing import Optional
 
 import bleach
 from bs4 import BeautifulSoup
@@ -61,7 +63,19 @@ def find_matched_by_filename(top_dir: str, find_name: str) -> list:
     return result
 
 
-def find_rst_file(doc_path):
+def extract_module_name_by_referer(referer: str) -> Optional[str]:
+    referer_path = urllib.parse.urlparse(str(referer)).path.split('/')
+    while referer_path and referer_path[0] in ['', '_viewer']:
+        referer_path.pop(0)
+    if referer_path:
+        module_name = referer_path[0]
+        logging.info("Referer module name is " + module_name)
+        return module_name
+    logging.warn('No module name at' + referer_path)
+    return None
+
+
+def find_rst_file(doc_path) -> Optional[str]:
     with open(app.config['DOC_ROOT'] + '/' + doc_path, 'r', encoding='utf-8') as fp:
         soup = BeautifulSoup(fp, "html.parser")
 
@@ -82,7 +96,8 @@ def find_rst_file(doc_path):
 
     logging.debug('Bare name ' + str(rst_rel))
 
-    rel_pathes = find_matched_by_filename('doc_src', rst_rel)
+    top_dir = 'doc_src'
+    rel_pathes = find_matched_by_filename(top_dir, rst_rel)
 
     if not rel_pathes:
         top_dir = doc_path.split('/')[0]
@@ -183,7 +198,7 @@ def process_save(content, commit_message, commit_author, rst_path, rst_file):
         checked_run('hg push')
 
 
-def process_update():
+def process_update(module_name: str = None):
     logging.info("--- Do update")
 
     # clean modified
@@ -200,7 +215,10 @@ def process_update():
 
     # regen docs
     time_start = time.time()
-    checked_run("./generate.sh", redirect_stdout=False)
+    cmd_line = "./generate.sh"
+    if module_name:
+        cmd_line += " " + module_name
+    checked_run(cmd_line, redirect_stdout=False)
     time_delta = int(time.time() - time_start)
     logging.info("Generating take {} sec".format(time_delta))
 
@@ -226,7 +244,9 @@ def process_autoupdate():
 @app.route('/_update')
 def handle_update_page():
     try:
-        process_update()
+        module_name = extract_module_name_by_referer(request.referrer)
+
+        process_update(module_name)
 
         logging.info('Succeeded updated')
         flash('Repository updated and regenerated', 'success')
