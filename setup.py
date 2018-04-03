@@ -6,6 +6,7 @@ setup(
     packages=['sphinx_weditor'],
     install_requires=['flask', 'jinja2', 'bleach', 'beautifulsoup4',
                       'flask-bootstrap'],
+    tests_require=['pytest'],
     url='',
     license='',
     author='irix',

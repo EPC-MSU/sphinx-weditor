@@ -71,6 +71,9 @@ def extract_module_name_by_referer(referer: str) -> Optional[str]:
         referer_path.pop()
     if referer_path:
         module_name = referer_path[0]
+        if module_name.endswith('.html') or module_name.endswith('.htm'):
+            logging.warning('No proper module name at' + str(referer))
+            return None
         logging.info("Referer module name is " + module_name)
         return module_name
     logging.warning('No module name at' + str(referer))
