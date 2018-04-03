@@ -71,7 +71,7 @@ def extract_module_name_by_referer(referer: str) -> Optional[str]:
         module_name = referer_path[0]
         logging.info("Referer module name is " + module_name)
         return module_name
-    logging.warn('No module name at' + referer_path)
+    logging.warning('No module name at' + referer_path)
     return None
 
 
@@ -244,7 +244,10 @@ def process_autoupdate():
 @app.route('/_update')
 def handle_update_page():
     try:
-        module_name = extract_module_name_by_referer(request.referrer)
+        if app.config.get('MODULES', False):
+            module_name = extract_module_name_by_referer(request.referrer)
+        else:
+            module_name = None
 
         process_update(module_name)
 
