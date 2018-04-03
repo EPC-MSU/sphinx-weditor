@@ -67,11 +67,13 @@ def extract_module_name_by_referer(referer: str) -> Optional[str]:
     referer_path = urllib.parse.urlparse(str(referer)).path.split('/')
     while referer_path and referer_path[0] in ['', '_viewer']:
         referer_path.pop(0)
+    while referer_path and referer_path[-1] in ['index.htm', 'index.html']:
+        referer_path.pop()
     if referer_path:
         module_name = referer_path[0]
         logging.info("Referer module name is " + module_name)
         return module_name
-    logging.warning('No module name at' + referer_path)
+    logging.warning('No module name at' + str(referer))
     return None
 
 
