@@ -4,3 +4,4 @@ ALLOW_PUSH = True
 DEBUG = False
 REGEN_SCRIPT = 'make'
 DOC_SRC = 'doc_src'
+MODULES = False

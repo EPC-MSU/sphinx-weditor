@@ -11,6 +11,9 @@
           <a class="btn btn-primary" href="/">Home</a>
           <a class="btn btn-primary" href="/_update">Update</a>
           <a class="btn btn-success" href="{{ edit_url }}">Edit</a>
+          {% if pdf_url %}
+            <a class="btn btn-success" href="{{ pdf_url }}">PDF</a>
+          {% endif %}
         </ul>
 
         <ul class="nav navbar-nav navbar-right">

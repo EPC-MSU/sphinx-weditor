@@ -6,8 +6,8 @@ with Sphinx documents.
 ## Install dependencies
 
     python3 -m venv venv
-	./venv/bin/pip install -e .
-	./venv/bin/pip install sphinx sphinxcontrib.bibtex
+    ./venv/bin/pip install -e .
+    ./venv/bin/pip install sphinx sphinxcontrib.bibtex
 
 ## Make config
 
