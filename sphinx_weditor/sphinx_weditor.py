@@ -96,16 +96,15 @@ def find_rst_file(doc_path) -> Optional[str]:
     with open(app.config['DOC_ROOT'] + '/' + doc_path, 'r', encoding='utf-8') as fp:
         soup = BeautifulSoup(fp, "html.parser")
 
-    rst_rel = None
-    elements = soup.find_all('div', 'footer')
-    if elements:
-        elements = elements[0].find_all('a', text='Page source')
-        if elements:
-            rst_rel = elements[0].attrs['href']
+    elements = soup.find_all('a')
+    elements_with_rst_href = [element for element in elements if
+                              element.attrs['href'] and
+                              element.attrs['href'].split('/')[-1].endswith('.rst.txt')]
 
-    if not rst_rel:
+    if len(elements_with_rst_href) != 1:
         return None
 
+    rst_rel = elements_with_rst_href[0].attrs['href']
     logging.debug('Found rel to source ' + str(rst_rel))
     rst_rel = rst_rel.split('/')[-1]
     if rst_rel.endswith('.rst.txt'):
